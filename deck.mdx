@@ -3,94 +3,70 @@ import {
   CodeSurferColumns,
   Step,
 } from "code-surfer";
-import { github, vsDark } from "@code-surfer/themes";
+import { condensed } from "mdx-deck/themes";
+import customTheme from "./theme";
+import Counter from "./components/Counter.js";
+import { vsDark } from "@code-surfer/themes";
+import codeSurferCustomTheme from "./code-surfer-custom-theme.js";
 
-export const theme = vsDark;
+export const theme = {
+  ...vsDark,
+  ...customTheme,
+};
 
-# Hello 👋
-
-You are using [MDX Deck](https://github.com/jxnblk/mdx-deck) and [Code Surfer](https://codesurfer.pomb.us)
+<h4>Hello World!!!</h4>
 
 ---
 
-<CodeSurfer>
+<h4>What is slate js?</h4>
+<ul>
+  <li>
+    Completely customizable framework for building rich text
+    editors.
+  </li>
+  <li>Built on top of React</li>
+</ul>
 
-```js title="This is a title" subtitle="and this a subtitle"
-function lorem(ipsum, dolor = 1) {
-  const sit = ipsum == null ? 0 : ipsum.sit;
-  dolor = sit - amet(dolor);
-  return sit
-    ? consectetur(ipsum, 0, dolor < 0 ? 0 : dolor)
-    : [];
-}
+---
 
-function incididunt(ipsum, ut = 1) {
-  ut = labore.et(amet(ut), 0);
-  const sit = ipsum == null ? 0 : ipsum.sit;
+<h4>What problems do slate js solves?</h4>
+<ul>
+  <li>Editor schema is fixed and difficult to customize</li>
+  <li>
+    Transforming the documents programmatically was very
+    convoluted
+  </li>
+  <li>Building complex, nested documents was impossible</li>
+</ul>
 
-  if (!sit || ut < 1) {
-    return [];
-  }
+---
 
-  let dolore = 0;
-  let magna = 0;
-  const aliqua = new eiusmod(labore.ut(sit / ut));
+<h4>Slate js principals</h4>
+<ul>
+  <li>Schema less core</li>
+  <li>Nested document model</li>
+  <li>Highly customizable due to its plugin system</li>
+</ul>
 
-  while (dolore < sit) {
-    aliqua[magna++] = consectetur(
-      ipsum,
-      dolore,
-      (dolore += ut)
-    );
-  }
+---
 
-  return aliqua;
-}
+<CodeSurfer theme={{...vsDark,...codeSurferCustomTheme}}>
+
+```js title="Installation..." 2
+
+npm install slate slate-react
+
+yarn add react react-dom
+
+
 ```
 
-```js
-function lorem(ipsum, dolor = 1) {
-  const sit = ipsum == null ? 0 : ipsum.sit;
-  dolor = sit - amet(dolor);
-  return sit
-    ? consectetur(ipsum, 0, dolor < 0 ? 0 : dolor)
-    : [];
-}
+```js title="Installation..." 4
 
-function adipiscing(...elit) {
-  if (!elit.sit) {
-    return [];
-  }
+npm install slate slate-react
 
-  const sed = elit[0];
-  return eiusmod.tempor(sed) ? sed : [sed];
-}
+yarn add react react-dom
 
-function incididunt(ipsum, ut = 1) {
-  ut = labore.et(amet(ut), 0);
-  const sit = ipsum == null ? 0 : ipsum.sit;
-
-  if (!sit || ut < 1) {
-    return [];
-  }
-
-  let dolore = 0;
-  let magna = 0;
-  const aliqua = new eiusmod(labore.ut(sit / ut));
-
-  while (dolore < sit) {
-    aliqua[magna++] = consectetur(
-      ipsum,
-      dolore,
-      (dolore += ut)
-    );
-  }
-
-  return aliqua;
-}
-```
-
-```diff 1[10:14],2[15:19],3[22:27],10:12
 
 ```
 
@@ -98,55 +74,119 @@ function incididunt(ipsum, ut = 1) {
 
 ---
 
-<CodeSurferColumns themes={[vsDark, github]}>
+<CodeSurfer theme={{...vsDark,...codeSurferCustomTheme}}>
 
-<Step>
+```jsx title="Initailize App.tsx" 1:7
+const initialValue = [
+  {
+    type: "paragraph",
+    children: [{ text: "A line of text in a paragraph." }],
+  },
+];
 
-```js
-const magna = aliqua => aliqua.ut((enim, ad) => enim, 0);
-```
-
-```js
-const minim = (ad, enim) => dolore.magna(ad / enim);
-```
-
-</Step>
-
-<Step>
-
-```js
-const lorem = (ipsum, dolor, sit) => {
-  const amet = dolor - ipsum;
-  return consectetur.adipiscing(
-    {
-      elit: sed.eiusmod(sit - dolor) / amet + 2,
-    },
-    (tempor, incididunt) => ipsum + amet * incididunt
+const App = () => {
+  const [editor] = useState(() =>
+    withReact(createEditor())
   );
-};
 
-const magna = aliqua => aliqua.ut((enim, ad) => enim, 0);
-```
-
-```js
-const minim = (ad, enim) => dolore.magna(ad / enim);
-
-const sed = (eiusmod, tempor, incididunt) => {
-  const ut = tempor - eiusmod;
-  return labore.et(
-    {
-      amet: dolore.magna(incididunt - tempor) / ut + 2,
-    },
-    (aliqua, elit) => eiusmod + ut * elit
+  return (
+    <Slate editor={editor} value={initialValue}>
+      <Editable />
+    </Slate>
   );
 };
 ```
 
-</Step>
+```jsx title="Initailize App.tsx" 9:11
+const initialValue = [
+  {
+    type: "paragraph",
+    children: [{ text: "A line of text in a paragraph." }],
+  },
+];
 
-</CodeSurferColumns>
+const App = () => {
+  const [editor] = useState(() =>
+    withReact(createEditor())
+  );
+
+  return (
+    <Slate editor={editor} value={initialValue}>
+      <Editable />
+    </Slate>
+  );
+};
+```
+
+```jsx title="Initailize App.tsx" 12:17
+const initialValue = [
+  {
+    type: "paragraph",
+    children: [{ text: "A line of text in a paragraph." }],
+  },
+];
+
+const App = () => {
+  const [editor] = useState(() =>
+    withReact(createEditor())
+  );
+
+  return (
+    <Slate editor={editor} value={initialValue}>
+      <Editable />
+    </Slate>
+  );
+};
+```
+
+</CodeSurfer>
 
 ---
 
-docs:  
-[codesurfer.pomb.us](https://codesurfer.pomb.us)
+<CodeSurfer theme={{...vsDark,...codeSurferCustomTheme}}>
+
+```jsx title="Declare custom types" 1
+type CustomElement = { type: 'paragraph'; children: CustomText[] }
+
+type CustomText = { text: string }
+
+declare module 'slate' {
+  interface CustomTypes {
+    Editor: BaseEditor & ReactEditor
+    Element: CustomElement
+    Text: CustomText
+  }
+}
+```
+
+```jsx title="Declare custom types" 3
+type CustomElement = { type: 'paragraph'; children: CustomText[] }
+
+type CustomText = { text: string }
+
+declare module 'slate' {
+  interface CustomTypes {
+    Editor: BaseEditor & ReactEditor
+    Element: CustomElement
+    Text: CustomText
+  }
+}
+```
+
+```jsx title="Declare custom types" 5:11
+type CustomElement = { type: 'paragraph'; children: CustomText[] }
+
+type CustomText = { text: string }
+
+declare module 'slate' {
+  interface CustomTypes {
+    Editor: BaseEditor & ReactEditor
+    Element: CustomElement
+    Text: CustomText
+  }
+}
+```
+
+</CodeSurfer>
+
+---
