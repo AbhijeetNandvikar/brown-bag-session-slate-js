@@ -290,7 +290,6 @@ const App = () => {
       event.preventDefault();
       setShowcommandMenu(false);
       setCommandMode(false);
-      setTarget();
       executeCommand(event);
     }
   };
@@ -550,11 +549,11 @@ const App = () => {
 
   useEffect(() => {
     if (target) {
-      const el = ref.current;
+      const popUpRef = ref.current;
       const domRange = ReactEditor.toDOMRange(editor, target);
       const rect = domRange.getBoundingClientRect();
-      el.style.top = `${rect.top + 24}px`;
-      el.style.left = `${rect.left}px`;
+      popUpRef.style.top = `${rect.top + 24}px`;
+      popUpRef.style.left = `${rect.left}px`;
     }
   }, [ editor, commandIndex, target]);
 
