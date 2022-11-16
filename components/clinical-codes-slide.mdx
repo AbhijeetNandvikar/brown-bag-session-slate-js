@@ -56,7 +56,7 @@ const commandOptions = [
   "heading-three",
 ];
 
-const IcdCodeInput = (props, editor) => {
+const IcdCodeBlock = (props, editor) => {
   return (
     <div {...props.attributes}>
       <div contentEditable={false}>
@@ -106,7 +106,7 @@ const commandOptions = [
   "heading-three",
 ];
 
-const IcdCodeInput = (props, editor) => {
+const IcdCodeBlock = (props, editor) => {
   return (
     <div {...props.attributes}>
       <div contentEditable={false}>
@@ -138,7 +138,7 @@ const App = () => {
  const renderElement = (props) => {
     switch (props.element.type) {
       case "icd-codes":
-        return <IcdCodeInput {...props} editor={editor} />;
+        return <IcdCodeBlock {...props} editor={editor} />;
       case "heading-one":
         return <HeadingOneBlock {...props} />;
       default:
@@ -167,7 +167,7 @@ const commandOptions = [
   "heading-three",
 ];
 
-const IcdCodeInput = (props, editor) => {
+const IcdCodeBlock = (props, editor) => {
   return (
     <div {...props.attributes}>
       <div contentEditable={false}>
@@ -207,7 +207,7 @@ const App = () => {
   return (
     <div>
       <Slate editor={editor} value={initialValue}>
-        <Editable />
+        <Editable renderElement={renderElement}/>
         {showCommandMenu && (
           <Portal>
             <div ref={ref}>
@@ -237,7 +237,7 @@ const commandOptions = [
   "heading-three",
 ];
 
-const IcdCodeInput = (props, editor) => {
+const IcdCodeBlock = (props, editor) => {
   return (
     <div {...props.attributes}>
       <div contentEditable={false}>
@@ -274,15 +274,12 @@ const App = () => {
   const ref = useRef();
   const [showCommandMenu, setShowcommandMenu] = useState(false);
   const [commandIndex, setCommandIndex] = useState(0);
-  const [commandSearch, setCommandSearch] = useState("");
-  const [commandList, setCommandList] = useState([]);
   const [commandMode, setCommandMode] = useState(false);
 
   const onKeyDownHandler = (event) => {
     if (event.key === "@") {
       setShowcommandMenu(true);
       setCommandMode(true);
-      setCommandList(commandOptions);
     } else if (commandMode && event.key === "ArrowDown") {
       event.preventDefault();
       setCommandIndex(commandIndex + 1);
@@ -301,7 +298,7 @@ const App = () => {
   return (
     <div>
       <Slate editor={editor} value={initialValue}>
-        <Editable onKeyDown={onKeyDownHandler}/>
+        <Editable renderElement={renderElement} onKeyDown={onKeyDownHandler}/>
         {showCommandMenu && (
           <Portal>
             <div ref={ref}>
@@ -320,7 +317,7 @@ const App = () => {
 };
 ```
 
-```js 51:62 showNumbers title="6. Add editor change handler"
+```js 51:57,61 showNumbers title="6. Add editor change handler"
 import React, { useEffect, useRef, useState } from "react";
 import { Slate, Editable, withReact, ReactEditor} from "slate-react";
 
@@ -331,7 +328,7 @@ const commandOptions = [
   "heading-three",
 ];
 
-const IcdCodeInput = (props, editor) => {
+const IcdCodeBlock = (props, editor) => {
   return (
     <div {...props.attributes}>
       <div contentEditable={false}>
@@ -368,8 +365,6 @@ const App = () => {
   const ref = useRef();
   const [showCommandMenu, setShowcommandMenu] = useState(false);
   const [commandIndex, setCommandIndex] = useState(0);
-  const [commandSearch, setCommandSearch] = useState("");
-  const [commandList, setCommandList] = useState([]);
   const [commandMode, setCommandMode] = useState(false);
   const [target, setTarget] = useState();
 
@@ -378,16 +373,13 @@ const App = () => {
       if (commandMode) {
         const currentNode = Node.get(editor, selection.anchor.path);
         setTarget(selection);
-        const currentText = currentNode.text;
-        const searchText = currentText.split("@")[1];
-        setCommandSearch(searchText ?? "");
       }
     };
 
   return (
     <div>
-      <Slate editor={editor} value={initialValue}>
-        <Editable onKeyDown={onKeyDownHandler}/>
+      <Slate editor={editor} value={initialValue} onChange={editorChangeHandler}>
+        <Editable renderElement={renderElement} onKeyDown={onKeyDownHandler}/>
         {showCommandMenu && (
           <Portal>
             <div ref={ref}>
@@ -406,7 +398,7 @@ const App = () => {
 };
 ```
 
-```js 52:77 showNumbers title="7. Add execute command function"
+```js 51:75 showNumbers title="7. Add execute command function"
 import React, { useEffect, useRef, useState } from "react";
 import { Slate, Editable, withReact, ReactEditor} from "slate-react";
 
@@ -417,7 +409,7 @@ const commandOptions = [
   "heading-three",
 ];
 
-const IcdCodeInput = (props, editor) => {
+const IcdCodeBlock = (props, editor) => {
   return (
     <div {...props.attributes}>
       <div contentEditable={false}>
@@ -454,8 +446,6 @@ const App = () => {
   const ref = useRef();
   const [showCommandMenu, setShowcommandMenu] = useState(false);
   const [commandIndex, setCommandIndex] = useState(0);
-  const [commandSearch, setCommandSearch] = useState("");
-  const [commandList, setCommandList] = useState([]);
   const [commandMode, setCommandMode] = useState(false);
   const [target, setTarget] = useState();
 
@@ -487,8 +477,8 @@ const App = () => {
 
   return (
     <div>
-      <Slate editor={editor} value={initialValue}>
-        <Editable onKeyDown={onKeyDownHandler}/>
+      <Slate editor={editor} value={initialValue} onChange={editorChangeHandler}>
+        <Editable renderElement={renderElement} onKeyDown={onKeyDownHandler} />
         {showCommandMenu && (
           <Portal>
             <div ref={ref}>
@@ -507,7 +497,7 @@ const App = () => {
 };
 ```
 
-```js 52:68 showNumbers title="8. Add useEffect for portal position and command search"
+```js 51:59 showNumbers title="8. Add useEffect for portal position and command search"
 import React, { useEffect, useRef, useState } from "react";
 import { Slate, Editable, withReact, ReactEditor} from "slate-react";
 
@@ -518,7 +508,7 @@ const commandOptions = [
   "heading-three",
 ];
 
-const IcdCodeInput = (props, editor) => {
+const IcdCodeBlock = (props, editor) => {
   return (
     <div {...props.attributes}>
       <div contentEditable={false}>
@@ -555,32 +545,23 @@ const App = () => {
   const ref = useRef();
   const [showCommandMenu, setShowcommandMenu] = useState(false);
   const [commandIndex, setCommandIndex] = useState(0);
-  const [commandSearch, setCommandSearch] = useState("");
-  const [commandList, setCommandList] = useState([]);
   const [commandMode, setCommandMode] = useState(false);
   const [target, setTarget] = useState();
 
   useEffect(() => {
-    if (target && commandList.length > 0) {
+    if (target) {
       const el = ref.current;
       const domRange = ReactEditor.toDOMRange(editor, target);
       const rect = domRange.getBoundingClientRect();
       el.style.top = `${rect.top + 24}px`;
       el.style.left = `${rect.left}px`;
     }
-  }, [commandList.length, editor, commandIndex, commandSearch, target]);
-
-  useEffect(() => {
-    const newCommandList = commandOptions.filter((command) => {
-      return command.toLowerCase().includes(commandSearch.toLowerCase());
-    });
-    setCommandList(newCommandList);
-  }, [commandSearch]);
+  }, [ editor, commandIndex, target]);
 
   return (
     <div>
-      <Slate editor={editor} value={initialValue}>
-        <Editable onKeyDown={onKeyDownHandler}/>
+      <Slate editor={editor} value={initialValue} onChange={editorChangeHandler}>
+        <Editable renderElement={renderElement} onKeyDown={onKeyDownHandler} />
         {showCommandMenu && (
           <Portal>
             <div ref={ref}>
