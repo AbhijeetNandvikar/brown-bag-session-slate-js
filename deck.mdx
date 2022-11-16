@@ -5,9 +5,9 @@ import {
 } from "code-surfer";
 import { condensed } from "mdx-deck/themes";
 import customTheme from "./theme";
-import Counter from "./components/Counter.js";
 import { vsDark } from "@code-surfer/themes";
 import codeSurferCustomTheme from "./code-surfer-custom-theme.js";
+import ClinicalCodeSlides from "./components/clinical-codes-slide";
 
 export const theme = {
   ...vsDark,
@@ -44,7 +44,7 @@ export const theme = {
 <h4>Slate js principals</h4>
 <ul>
   <li>Schema less core</li>
-  <li>Nested document model</li>
+  <li>Nested document model similar to DOM</li>
   <li>Highly customizable due to its plugin system</li>
 </ul>
 
@@ -76,7 +76,7 @@ yarn add react react-dom
 
 <CodeSurfer theme={{...vsDark,...codeSurferCustomTheme}}>
 
-```jsx title="Initailize App.tsx" 1:7
+```jsx showNumbers title="Initailize App.tsx" 1:7
 const initialValue = [
   {
     type: "paragraph",
@@ -85,9 +85,7 @@ const initialValue = [
 ];
 
 const App = () => {
-  const [editor] = useState(() =>
-    withReact(createEditor())
-  );
+  const [editor] = useState(() => withReact(createEditor()));
 
   return (
     <Slate editor={editor} value={initialValue}>
@@ -97,7 +95,7 @@ const App = () => {
 };
 ```
 
-```jsx title="Initailize App.tsx" 9:11
+```jsx showNumbers title="Initailize App.tsx" 9:11
 const initialValue = [
   {
     type: "paragraph",
@@ -106,9 +104,7 @@ const initialValue = [
 ];
 
 const App = () => {
-  const [editor] = useState(() =>
-    withReact(createEditor())
-  );
+  const [editor] = useState(() => withReact(createEditor()));
 
   return (
     <Slate editor={editor} value={initialValue}>
@@ -118,7 +114,7 @@ const App = () => {
 };
 ```
 
-```jsx title="Initailize App.tsx" 12:17
+```jsx showNumbers title="Initailize App.tsx" 12:14
 const initialValue = [
   {
     type: "paragraph",
@@ -127,9 +123,7 @@ const initialValue = [
 ];
 
 const App = () => {
-  const [editor] = useState(() =>
-    withReact(createEditor())
-  );
+  const [editor] = useState(() => withReact(createEditor()));
 
   return (
     <Slate editor={editor} value={initialValue}>
@@ -140,53 +134,413 @@ const App = () => {
 ```
 
 </CodeSurfer>
+
+---
+
+#### That's it, we now have a very basic editor ready.
+<br />
+<iframe
+  style={{
+    width: 600,
+    height: 400,
+    borderRadius: 8,
+  }}
+  src="http://127.0.0.1:5173/basic-demo"
+></iframe>
+
+---
+
+<h5>Important concepts in slate js</h5>
+<ul>
+  <li>Nodes</li>
+  <li>Locations</li>
+  <li>Transforms</li>
+</ul>
+
+---
+
+#### Nodes are of three types
+
+<ul>
+  <li>Editor Node</li>
+  <li>Element Node</li>
+  <li>Leaf Node</li>
+</ul>
 
 ---
 
 <CodeSurfer theme={{...vsDark,...codeSurferCustomTheme}}>
 
-```jsx title="Declare custom types" 1
-type CustomElement = { type: 'paragraph'; children: CustomText[] }
-
-type CustomText = { text: string }
-
-declare module 'slate' {
-  interface CustomTypes {
-    Editor: BaseEditor & ReactEditor
-    Element: CustomElement
-    Text: CustomText
-  }
+```ts showNumbers title="1. Editor Node" subtitle="This is the root level node and contains entire document's content."
+interface Editor {
+  children: Node[];
+  selection: Range | null;
+  onChange: () => void
+  deleteBackward: (unit: 'character' | 'word' | 'line' | 'block') => void
+  deleteForward: (unit: 'character' | 'word' | 'line' | 'block') => void
+  deleteFragment: () => void
+  insertBreak: () => void
+  insertSoftBreak: () => void
+  insertFragment: (fragment: Node[]) => void
+  insertNode: (node: Node) => void
+  // ...other properties
 }
 ```
 
-```jsx title="Declare custom types" 3
-type CustomElement = { type: 'paragraph'; children: CustomText[] }
+```ts showNumbers title="2. Element Node" subtitle='Also called block level node'
+const children = [
+  {
+    type: "paragraph",
+    children: [{ text: "A line of text in a paragraph." }],
+  },
+  {
+    type: "heading-one",
+    children: [{ text: "This is heading one" }],
+  },
+];
+```
 
-type CustomText = { text: string }
+```ts showNumbers 4:7 title="3. Text Node" subtitle='Also known as leaf node'
+const children = [
+  {
+    type: "paragraph",
+    children: [
+      { text: "A line of text in a " },
+      { text: "paragraph", bold: true }
+    ],
+  },
+];
+```
 
-declare module 'slate' {
-  interface CustomTypes {
-    Editor: BaseEditor & ReactEditor
-    Element: CustomElement
-    Text: CustomText
-  }
+</CodeSurfer>
+
+---
+
+#### Locations
+
+<ul
+  style={{
+    textAlign: "left",
+    width: "60%",
+  }}
+>
+  <li>Locations are how you refer to specific places in the document
+  when inserting, deleting, or doing anything else with a Slate editor.</li>
+  <li>There are 3 ways to describe a location.</li>
+  
+</ul>
+
+---
+
+<CodeSurfer theme={{...vsDark,...codeSurferCustomTheme}}>
+
+```ts showNumbers title="1. Path" subtitle="Gives us the location of a leaf node"
+const path = [0, 0];
+```
+
+```ts showNumbers title="2. Point" subtitle="Gives us the exact location of the cursor"
+interface Point {
+  path: Path;
+  offset: number;
 }
 ```
 
-```jsx title="Declare custom types" 5:11
-type CustomElement = { type: 'paragraph'; children: CustomText[] }
-
-type CustomText = { text: string }
-
-declare module 'slate' {
-  interface CustomTypes {
-    Editor: BaseEditor & ReactEditor
-    Element: CustomElement
-    Text: CustomText
-  }
+```ts showNumbers title="3. Range" subtitle="Defines range of current selection"
+interface Range {
+  anchor: Point;
+  focus: Point;
 }
 ```
 
 </CodeSurfer>
 
 ---
+
+#### What are Transforms?
+
+<ul>
+  <li>Slate have immutable data structure, so means we can't modify data directly.</li>
+  <li>Transforms are set of methods used to modify the document</li>
+  
+</ul>
+
+---
+
+<CodeSurfer theme={{...vsDark,...codeSurferCustomTheme}}>
+
+```js showNumbers title="Selection Transforms" subtitle="This will select all nodes within given range"
+Transforms.select(editor, {
+  anchor: { path: [0, 0], offset: 0 },
+  focus: { path: [1, 0], offset: 2 },
+});
+```
+
+```js showNumbers title="Text Transforms" subtitle="This will insert or delete text at given range"
+Transforms.insertText(editor, "some words", {
+  at: { path: [0, 0], offset: 3 },
+});
+
+Transforms.delete(editor, {
+  at: {
+    anchor: { path: [0, 0], offset: 0 },
+    focus: { path: [1, 0], offset: 2 },
+  },
+});
+```
+
+```js showNumbers title="Node Transforms" subtitle="This will change properties of selected node"
+Transforms.insertNodes(
+  editor,
+  {
+    text: "A new string of text.",
+    type: "heading-one",
+  },
+  {
+    at: [0, 1],
+  }
+);
+
+Transforms.setNodes(
+  editor,
+  {
+    text: "A new string of text.",
+    type: "heading-one",
+  },
+  {
+    at: [0, 1],
+  }
+);
+
+```
+
+</CodeSurfer>
+
+---
+
+<div style={{width:"60%",textAlign:"center"}}>
+  Now that we are familiar with the basic concepts, 
+  let's create a simple button to add heading H1
+</div>
+
+---
+
+<CodeSurfer theme={{...vsDark,...codeSurferCustomTheme}}>
+
+```jsx showNumbers title="Basic setup"
+const initialValue = [
+  {
+    type: "paragraph",
+    children: [{ text: "A line of text in a paragraph." }],
+  },
+];
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+
+  return (
+    <Slate editor={editor} value={initialValue}>
+      <Editable />
+    </Slate>
+  );
+};
+```
+
+```jsx showNumbers title="Declare a custom Element"
+const initialValue = [
+  {
+    type: "paragraph",
+    children: [{ text: "A line of text in a paragraph." }],
+  },
+  {
+    type: "heading-one",
+    children: [{ text: "This is Heading 1." }],
+  },
+];
+
+const HeadingOneElement = (props) => {
+  return <h1 {...props.attributes}>{props.children}</h1>;
+};
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+
+  return (
+    <Slate editor={editor} value={initialValue}>
+      <Editable />
+    </Slate>
+  );
+};
+```
+
+```jsx showNumbers title="Add a function to render custom elements"
+const initialValue = [
+  {
+    type: "paragraph",
+    children: [{ text: "A line of text in a paragraph." }],
+  },
+  {
+    type: "heading-one",
+    children: [{ text: "This is Heading 1." }],
+  },
+];
+
+const HeadingOneElement = (props) => {
+  return <h1 {...props.attributes}>{props.children}</h1>;
+};
+
+const renderElement = useCallback((props) => {
+  switch (props.element.type) {
+    case "heading-one":
+      return (
+        <HeadingOneElement {...props.attributes}>
+          {props.children}
+        </HeadingOneElement>
+      );
+    default:
+      return <p {...props.attributes}>{props.children}</p>;
+  }
+}, []);
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+
+  return (
+    <Slate editor={editor} value={initialValue}>
+      <Editable renderElement={renderElement} />
+    </Slate>
+  );
+};
+```
+
+```jsx showNumbers title="Create a helper function to add H1"
+const initialValue = [
+  {
+    type: "paragraph",
+    children: [{ text: "A line of text in a paragraph." }],
+  },
+  {
+    type: "heading-one",
+    children: [{ text: "This is Heading 1." }],
+  },
+];
+
+const HeadingOneElement = (props) => {
+  return <h1 {...props.attributes}>{props.children}</h1>;
+};
+
+const renderElement = useCallback((props) => {
+  switch (props.element.type) {
+    case "heading-one":
+      return (
+        <HeadingOneElement {...props.attributes}>
+          {props.children}
+        </HeadingOneElement>
+      );
+    default:
+      return <p {...props.attributes}>{props.children}</p>;
+  }
+}, []);
+
+const isheadingOneBlockActive = (editor) => {
+  const [match] = Editor.nodes(editor, {
+    match: (n) => n.type === "heading-one",
+  });
+
+  return !!match;
+};
+
+const toggleheadingOneBlock = (editor) => {
+  const isActive = isheadingOneBlockActive(editor);
+  Transforms.setNodes(
+    editor,
+    { type: isActive ? "paragraph" : "heading-one" }
+  );
+};
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+
+  return (
+    <Slate editor={editor} value={initialValue}>
+      <button
+        onClick={() => {
+          toggleheadingOneBlock(editor);
+        }}
+      >
+        Toggle Heading 1
+      </button>
+      <Editable renderElement={renderElement} />
+    </Slate>
+  );
+};
+```
+
+</CodeSurfer>
+
+---
+
+#### Here is the final result.
+
+<br />
+<iframe
+  style={{
+    width: 600,
+    height: 400,
+    borderRadius: 8,
+  }}
+  src="http://127.0.0.1:5173/heading-one-demo"
+></iframe>
+
+---
+
+##### Now we will take this one step further and implement smart blocks
+
+<br />
+
+<iframe
+  style={{
+    width: 600,
+    height: 400,
+    borderRadius: 8,
+  }}
+  src="http://127.0.0.1:5173/clinical-codes-example"
+></iframe>
+
+---
+
+#### What are the steps involved?
+
+- Declare a list of commands.
+- Declare custom elements.
+- Create a function to render custom elements.
+- Create a portal.
+- Add a keydown event handler.
+- Add editor change handler.
+- Add execute command function.
+- Add useEffect for portal position and command search.
+
+---
+
+<ClinicalCodeSlides />
+
+---
+
+#### Here is the final result.
+<br />
+
+<iframe
+  style={{
+    width: 600,
+    height: 400,
+    borderRadius: 8,
+  }}
+  src="http://127.0.0.1:5173/clinical-codes-example"
+></iframe>
+
+---
+
+#### Thanks for joining!!!
+
+- Checkout slate.js docs for more details.
+- Let me know if you have any questions.
+- Or if you have any feedback.

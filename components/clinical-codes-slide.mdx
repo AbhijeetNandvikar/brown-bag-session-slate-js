@@ -1,0 +1,602 @@
+import { CodeSurfer } from "code-surfer";
+import { vsDark } from "@code-surfer/themes";
+import codeSurferCustomTheme from "../code-surfer-custom-theme.js";
+
+<CodeSurfer theme={{ ...vsDark, ...codeSurferCustomTheme }}>
+
+```js showNumbers title="This is our basic setup"
+import React, { useEffect, useRef, useState } from "react";
+import { Slate, Editable, withReact, ReactEditor} from "slate-react";
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+
+  return (
+    <div>
+      <Slate editor={editor} value={initialValue}>
+        <Editable />
+      </Slate>
+    </div>
+  );
+};
+```
+
+```js 4:10 showNumbers title="1. Add command options"
+import React, { useEffect, useRef, useState } from "react";
+import { Slate, Editable, withReact, ReactEditor} from "slate-react";
+
+const commandOptions = [
+  "icd-codes",
+  "heading-one",
+  "heading-two",
+  "heading-three",
+];
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+
+  return (
+    <div>
+      <Slate editor={editor} value={initialValue}>
+        <Editable />
+      </Slate>
+    </div>
+  );
+};
+```
+
+```js showNumbers title="2. Declare custom Elements"
+import React, { useEffect, useRef, useState } from "react";
+import { Slate, Editable, withReact, ReactEditor} from "slate-react";
+
+const commandOptions = [
+  "icd-codes",
+  "heading-one",
+  "heading-two",
+  "heading-three",
+];
+
+const IcdCodeInput = (props, editor) => {
+  return (
+    <div {...props.attributes}>
+      <div contentEditable={false}>
+        <h2>Enter ICD Codes: </h2>
+        <input onChange={(event) => setValue(event.target.value)}/>
+        <button onClick={() => setIcdCodes([...IcdCodes, value])}>
+          Add ICD codes
+        </button>
+        {IcdCodes.map((code, index) => {
+          return (
+            <div onClick={() => setIcdCodes(IcdCodes.filter((c) => c !== code))}>
+              {code}
+            </div>
+          );
+        })}
+      </div>
+      {props.children}
+    </div>
+  );
+};
+
+const HeadingOneBlock = ({ attributes, children }) => {
+  return <h1 {...attributes}>{children}</h1>;
+};
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+
+  return (
+    <div>
+      <Slate editor={editor} value={initialValue}>
+        <Editable />
+      </Slate>
+    </div>
+  );
+};
+```
+
+```js showNumbers title="3. Create a function to render custom Elements"
+import React, { useEffect, useRef, useState } from "react";
+import { Slate, Editable, withReact, ReactEditor} from "slate-react";
+
+const commandOptions = [
+  "icd-codes",
+  "heading-one",
+  "heading-two",
+  "heading-three",
+];
+
+const IcdCodeInput = (props, editor) => {
+  return (
+    <div {...props.attributes}>
+      <div contentEditable={false}>
+        <h2>Enter ICD Codes: </h2>
+        <input onChange={(event) => setValue(event.target.value)}/>
+        <button onClick={() => setIcdCodes([...IcdCodes, value])}>
+          Add ICD codes
+        </button>
+        {IcdCodes.map((code, index) => {
+          return (
+            <div onClick={() => setIcdCodes(IcdCodes.filter((c) => c !== code))}>
+              {code}
+            </div>
+          );
+        })}
+      </div>
+      {props.children}
+    </div>
+  );
+};
+
+const HeadingOneBlock = ({ attributes, children }) => {
+  return <h1 {...attributes}>{children}</h1>;
+};
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+
+ const renderElement = (props) => {
+    switch (props.element.type) {
+      case "icd-codes":
+        return <IcdCodeInput {...props} editor={editor} />;
+      case "heading-one":
+        return <HeadingOneBlock {...props} />;
+      default:
+        return <p {...props.attributes}>{props.children}</p>;
+    }
+  };
+  
+  return (
+    <div>
+      <Slate editor={editor} value={initialValue}>
+        <Editable renderElement={renderElement}/>
+      </Slate>
+    </div>
+  );
+};
+```
+
+```js showNumbers title="4. Create a Portal"
+import React, { useEffect, useRef, useState } from "react";
+import { Slate, Editable, withReact, ReactEditor} from "slate-react";
+
+const commandOptions = [
+  "icd-codes",
+  "heading-one",
+  "heading-two",
+  "heading-three",
+];
+
+const IcdCodeInput = (props, editor) => {
+  return (
+    <div {...props.attributes}>
+      <div contentEditable={false}>
+        <h2>Enter ICD Codes: </h2>
+        <input onChange={(event) => setValue(event.target.value)}/>
+        <button onClick={() => setIcdCodes([...IcdCodes, value])}>
+          Add ICD codes
+        </button>
+        {IcdCodes.map((code, index) => {
+          return (
+            <div onClick={() => setIcdCodes(IcdCodes.filter((c) => c !== code))}>
+              {code}
+            </div>
+          );
+        })}
+      </div>
+      {props.children}
+    </div>
+  );
+};
+
+const HeadingOneBlock = ({ attributes, children }) => {
+  return <h1 {...attributes}>{children}</h1>;
+};
+
+export const Portal = ({ children }) => {
+  return typeof document === "object"
+    ? ReactDOM.createPortal(children, document.body)
+    : null;
+};
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+  const ref = useRef();
+  const [showCommandMenu, setShowcommandMenu] = useState(false);
+
+  return (
+    <div>
+      <Slate editor={editor} value={initialValue}>
+        <Editable />
+        {showCommandMenu && (
+          <Portal>
+            <div ref={ref}>
+              {commandList.map((command, i) => {
+                return (
+                  <div onClick={() => Transforms.setNodes(editor, { type: command})}>
+                    {command}
+                  </div>);
+              })}
+            </div>
+          </Portal>
+        )}
+      </Slate>
+    </div>
+  );
+};
+```
+
+```js showNumbers title="5. Add keydown event handler"
+import React, { useEffect, useRef, useState } from "react";
+import { Slate, Editable, withReact, ReactEditor} from "slate-react";
+
+const commandOptions = [
+  "icd-codes",
+  "heading-one",
+  "heading-two",
+  "heading-three",
+];
+
+const IcdCodeInput = (props, editor) => {
+  return (
+    <div {...props.attributes}>
+      <div contentEditable={false}>
+        <h2>Enter ICD Codes: </h2>
+        <input onChange={(event) => setValue(event.target.value)}/>
+        <button onClick={() => setIcdCodes([...IcdCodes, value])}>
+          Add ICD codes
+        </button>
+        {IcdCodes.map((code, index) => {
+          return (
+            <div onClick={() => setIcdCodes(IcdCodes.filter((c) => c !== code))}>
+              {code}
+            </div>
+          );
+        })}
+      </div>
+      {props.children}
+    </div>
+  );
+};
+
+const HeadingOneBlock = ({ attributes, children }) => {
+  return <h1 {...attributes}>{children}</h1>;
+};
+
+export const Portal = ({ children }) => {
+  return typeof document === "object"
+    ? ReactDOM.createPortal(children, document.body)
+    : null;
+};
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+  const ref = useRef();
+  const [showCommandMenu, setShowcommandMenu] = useState(false);
+  const [commandIndex, setCommandIndex] = useState(0);
+  const [commandSearch, setCommandSearch] = useState("");
+  const [commandList, setCommandList] = useState([]);
+  const [commandMode, setCommandMode] = useState(false);
+
+  const onKeyDownHandler = (event) => {
+    if (event.key === "@") {
+      setShowcommandMenu(true);
+      setCommandMode(true);
+      setCommandList(commandOptions);
+    } else if (commandMode && event.key === "ArrowDown") {
+      event.preventDefault();
+      setCommandIndex(commandIndex + 1);
+    } else if (commandMode && event.key === "ArrowUp") {
+      event.preventDefault();
+      setCommandIndex(commandIndex - 1);
+    } else if (commandMode && event.key === "Enter") {
+      event.preventDefault();
+      setShowcommandMenu(false);
+      setCommandMode(false);
+      setTarget();
+      executeCommand(event);
+    }
+  };
+
+  return (
+    <div>
+      <Slate editor={editor} value={initialValue}>
+        <Editable onKeyDown={onKeyDownHandler}/>
+        {showCommandMenu && (
+          <Portal>
+            <div ref={ref}>
+              {commandList.map((command, i) => {
+                return (
+                  <div onClick={() => Transforms.setNodes(editor, { type: command})}>
+                    {command}
+                  </div>);
+              })}
+            </div>
+          </Portal>
+        )}
+      </Slate>
+    </div>
+  );
+};
+```
+
+```js 51:62 showNumbers title="6. Add editor change handler"
+import React, { useEffect, useRef, useState } from "react";
+import { Slate, Editable, withReact, ReactEditor} from "slate-react";
+
+const commandOptions = [
+  "icd-codes",
+  "heading-one",
+  "heading-two",
+  "heading-three",
+];
+
+const IcdCodeInput = (props, editor) => {
+  return (
+    <div {...props.attributes}>
+      <div contentEditable={false}>
+        <h2>Enter ICD Codes: </h2>
+        <input onChange={(event) => setValue(event.target.value)}/>
+        <button onClick={() => setIcdCodes([...IcdCodes, value])}>
+          Add ICD codes
+        </button>
+        {IcdCodes.map((code, index) => {
+          return (
+            <div onClick={() => setIcdCodes(IcdCodes.filter((c) => c !== code))}>
+              {code}
+            </div>
+          );
+        })}
+      </div>
+      {props.children}
+    </div>
+  );
+};
+
+const HeadingOneBlock = ({ attributes, children }) => {
+  return <h1 {...attributes}>{children}</h1>;
+};
+
+export const Portal = ({ children }) => {
+  return typeof document === "object"
+    ? ReactDOM.createPortal(children, document.body)
+    : null;
+};
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+  const ref = useRef();
+  const [showCommandMenu, setShowcommandMenu] = useState(false);
+  const [commandIndex, setCommandIndex] = useState(0);
+  const [commandSearch, setCommandSearch] = useState("");
+  const [commandList, setCommandList] = useState([]);
+  const [commandMode, setCommandMode] = useState(false);
+  const [target, setTarget] = useState();
+
+  const editorChangeHandler = (value) => {
+      const { selection, children } = editor;
+      if (commandMode) {
+        const currentNode = Node.get(editor, selection.anchor.path);
+        setTarget(selection);
+        const currentText = currentNode.text;
+        const searchText = currentText.split("@")[1];
+        setCommandSearch(searchText ?? "");
+      }
+    };
+
+  return (
+    <div>
+      <Slate editor={editor} value={initialValue}>
+        <Editable onKeyDown={onKeyDownHandler}/>
+        {showCommandMenu && (
+          <Portal>
+            <div ref={ref}>
+              {commandList.map((command, i) => {
+                return (
+                  <div onClick={() => Transforms.setNodes(editor, { type: command})}>
+                    {command}
+                  </div>);
+              })}
+            </div>
+          </Portal>
+        )}
+      </Slate>
+    </div>
+  );
+};
+```
+
+```js 52:77 showNumbers title="7. Add execute command function"
+import React, { useEffect, useRef, useState } from "react";
+import { Slate, Editable, withReact, ReactEditor} from "slate-react";
+
+const commandOptions = [
+  "icd-codes",
+  "heading-one",
+  "heading-two",
+  "heading-three",
+];
+
+const IcdCodeInput = (props, editor) => {
+  return (
+    <div {...props.attributes}>
+      <div contentEditable={false}>
+        <h2>Enter ICD Codes: </h2>
+        <input onChange={(event) => setValue(event.target.value)}/>
+        <button onClick={() => setIcdCodes([...IcdCodes, value])}>
+          Add ICD codes
+        </button>
+        {IcdCodes.map((code, index) => {
+          return (
+            <div onClick={() => setIcdCodes(IcdCodes.filter((c) => c !== code))}>
+              {code}
+            </div>
+          );
+        })}
+      </div>
+      {props.children}
+    </div>
+  );
+};
+
+const HeadingOneBlock = ({ attributes, children }) => {
+  return <h1 {...attributes}>{children}</h1>;
+};
+
+export const Portal = ({ children }) => {
+  return typeof document === "object"
+    ? ReactDOM.createPortal(children, document.body)
+    : null;
+};
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+  const ref = useRef();
+  const [showCommandMenu, setShowcommandMenu] = useState(false);
+  const [commandIndex, setCommandIndex] = useState(0);
+  const [commandSearch, setCommandSearch] = useState("");
+  const [commandList, setCommandList] = useState([]);
+  const [commandMode, setCommandMode] = useState(false);
+  const [target, setTarget] = useState();
+
+  const executeCommand = (event) => {
+      switch (commandOptions[commandIndex]) {
+        case "icd-codes": {
+          Editor.deleteBackward(editor, { unit: "character" });
+          Transforms.setNodes(editor, {
+            type: "icd-codes",
+            children: [{ text: "" }],
+            at: editor.selection,
+          });
+          break;
+        }
+        case "heading-one": {
+          Editor.deleteBackward(editor, { unit: "character" });
+          Transforms.setNodes(editor, {
+            type: "heading-one",
+            children: [{ text: "" }],
+            at: editor.selection,
+          });
+          break;
+        }
+        default: {
+          event.preventDefault();
+        }
+      }
+    };
+
+  return (
+    <div>
+      <Slate editor={editor} value={initialValue}>
+        <Editable onKeyDown={onKeyDownHandler}/>
+        {showCommandMenu && (
+          <Portal>
+            <div ref={ref}>
+              {commandList.map((command, i) => {
+                return (
+                  <div onClick={() => Transforms.setNodes(editor, { type: command})}>
+                    {command}
+                  </div>);
+              })}
+            </div>
+          </Portal>
+        )}
+      </Slate>
+    </div>
+  );
+};
+```
+
+```js 52:68 showNumbers title="8. Add useEffect for portal position and command search"
+import React, { useEffect, useRef, useState } from "react";
+import { Slate, Editable, withReact, ReactEditor} from "slate-react";
+
+const commandOptions = [
+  "icd-codes",
+  "heading-one",
+  "heading-two",
+  "heading-three",
+];
+
+const IcdCodeInput = (props, editor) => {
+  return (
+    <div {...props.attributes}>
+      <div contentEditable={false}>
+        <h2>Enter ICD Codes: </h2>
+        <input onChange={(event) => setValue(event.target.value)}/>
+        <button onClick={() => setIcdCodes([...IcdCodes, value])}>
+          Add ICD codes
+        </button>
+        {IcdCodes.map((code, index) => {
+          return (
+            <div onClick={() => setIcdCodes(IcdCodes.filter((c) => c !== code))}>
+              {code}
+            </div>
+          );
+        })}
+      </div>
+      {props.children}
+    </div>
+  );
+};
+
+const HeadingOneBlock = ({ attributes, children }) => {
+  return <h1 {...attributes}>{children}</h1>;
+};
+
+export const Portal = ({ children }) => {
+  return typeof document === "object"
+    ? ReactDOM.createPortal(children, document.body)
+    : null;
+};
+
+const App = () => {
+  const [editor] = useState(() => withReact(createEditor()));
+  const ref = useRef();
+  const [showCommandMenu, setShowcommandMenu] = useState(false);
+  const [commandIndex, setCommandIndex] = useState(0);
+  const [commandSearch, setCommandSearch] = useState("");
+  const [commandList, setCommandList] = useState([]);
+  const [commandMode, setCommandMode] = useState(false);
+  const [target, setTarget] = useState();
+
+  useEffect(() => {
+    if (target && commandList.length > 0) {
+      const el = ref.current;
+      const domRange = ReactEditor.toDOMRange(editor, target);
+      const rect = domRange.getBoundingClientRect();
+      el.style.top = `${rect.top + 24}px`;
+      el.style.left = `${rect.left}px`;
+    }
+  }, [commandList.length, editor, commandIndex, commandSearch, target]);
+
+  useEffect(() => {
+    const newCommandList = commandOptions.filter((command) => {
+      return command.toLowerCase().includes(commandSearch.toLowerCase());
+    });
+    setCommandList(newCommandList);
+  }, [commandSearch]);
+
+  return (
+    <div>
+      <Slate editor={editor} value={initialValue}>
+        <Editable onKeyDown={onKeyDownHandler}/>
+        {showCommandMenu && (
+          <Portal>
+            <div ref={ref}>
+              {commandList.map((command, i) => {
+                return (
+                  <div onClick={() => Transforms.setNodes(editor, { type: command})}>
+                    {command}
+                  </div>);
+              })}
+            </div>
+          </Portal>
+        )}
+      </Slate>
+    </div>
+  );
+};
+```
+
+</CodeSurfer>
