@@ -277,7 +277,7 @@ const App = () => {
   const [commandMode, setCommandMode] = useState(false);
 
   const onKeyDownHandler = (event) => {
-    if (event.key === "@") {
+    if (event.key === "/") {
       setShowcommandMenu(true);
       setCommandMode(true);
     } else if (commandMode && event.key === "ArrowDown") {
